@@ -1,0 +1,24 @@
+const Twitter = require('twitter');
+const config = require('./config.js');
+const T = new Twitter(config);
+
+// Set up your search parameters
+const params = {
+  q: 'mannargudi',
+  count: 1,
+  result_type: 'recent',
+  lang: 'en'
+}
+
+// Initiate your search using the above paramaters
+T.get('search/tweets', params, (err, data, response) => {
+  // If there is no error, proceed
+  if(err){
+    return console.log(err);
+  }
+
+  // Loop through the returned tweets
+  const tweetsId = data.statuses.map(tweet => console.log(tweet) );
+
+ 
+})
