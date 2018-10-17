@@ -25,11 +25,17 @@ function analyzeSentiment(textToBeAnalyzed) {
     type: 'PLAIN_TEXT'
   }})
   .then(results => {
+   
     const sentiment = results[0].documentSentiment;
-
     console.log(`Text: ${textToBeAnalyzed}`);
     console.log(`Sentiment score: ${sentiment.score}`);
     console.log(`Sentiment magnitude: ${sentiment.magnitude}`);
+    results[0].sentences.map(sentence => {
+      console.log(`Sentence text: ${sentence.text.content}`);
+      console.log(`Sentence score: ${sentence.sentiment.score}`);
+      console.log(`Sentence magnitude: ${sentence.sentiment.magnitude}`);
+    })
+
   })
   .catch(err => {
     console.error('ERROR:', err);
@@ -61,7 +67,7 @@ T.get('search/tweets', params, (err, data, response) => {
   // Loop through the returned tweets
   const tweetsId = data.statuses.map(tweet => {
     if ((tweet.text != undefined) && (tweet.text.substring(0,2) != 'RT')) {
-      db.collection('tweets').doc(tweet.id_str).set(tweet);
+      //db.collection('tweets').doc(tweet.id_str).set(tweet);
       analyzeSentiment(tweet.text);
     }
   })
