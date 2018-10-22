@@ -18,7 +18,7 @@ var db = admin.firestore();
 
 // Set up your search parameters
 const params = {
-  q: '#MeToo',
+  q: 'virat kohli',
   count: 10,
   result_type: 'recent',
   lang: 'en'
@@ -34,39 +34,28 @@ T.get('search/tweets', params, (err, data, response) => {
     if ((tweet.text != undefined) && (tweet.text.substring(0,2) != 'RT')) {
       //db.collection('tweets').doc(tweet.id_str).set(tweet);
 
-      var document = {
+      var requestObject = {"document":{
         content: tweet.text,
         type: 'PLAIN_TEXT',
-      };
-      
-      var EntitySentimentPromise = new Promise((resolve, reject) => {
-        client
-        .analyzeEntitySentiment({document: document})
-        .then(results => {
-          resolve(results[0]);
-        })
-        .catch(err => {
-          reject(err);
-        });
-      });
-
-      var ClassifyPromise = new Promise((resolve, reject) => {
-        client
-          .classifyText({document: document})
-          .then(results => {
-            resolve(results[0]);
-          })
-          .catch(err => {
-            reject(err);
-          });
-      });
-      
-      Promise.all([EntitySentimentPromise, ClassifyPromise]).then(function(values){
-        tweet.EntitySentiment = values[0];
-        tweet.Classification = values[1];
+      },
+      "encodingType": "UTF-8",
+      "features": {
+        "extractSyntax": false,
+        "extractEntities": true,
+        "extractDocumentSentiment": true,
+        "extractEntitySentiment": true,
+        "classifyText": true,
+      }};
+    
+      client
+      .annotateText(requestObject)
+      .then(results => {
+        tweet.NLP = results[0];
         db.collection('tweets').doc(tweet.id_str).set(tweet);
-        // console.log(tweet.EntitySentiment && tweet.EntitySentiment[0]);
       })
+      .catch(err => {
+        console.log(err);
+      });
     }
   })
 });
